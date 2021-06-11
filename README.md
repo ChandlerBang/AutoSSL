@@ -1,7 +1,7 @@
 # AutoSSL
 A PyTorch implementation of paper ["Automated Self-Supervised Learning for Graphs"](https://arxiv.org/abs/2106.05470).
 
-Code will be realesed soon. Stay tuned :)
+Code will be released soon. Stay tuned :)
 
 
 
