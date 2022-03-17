@@ -1,6 +1,8 @@
 # AutoSSL
-A PyTorch implementation of paper ["Automated Self-Supervised Learning for Graphs"](https://arxiv.org/abs/2106.05470).
+[ICLR 2022] A PyTorch implementation of paper ["Automated Self-Supervised Learning for Graphs"](https://openreview.net/pdf?id=rFbR4Fv-D6-).
 
+## Abstract
+We observe that different pretext tasks affect downstream tasks differently cross datasets, which suggests that searching pretext tasks is crucial for graph self-supervised learning.  Different from existing works focusing on designing single pretext tasks, this work aims to investigate how to automatically leverage multiple pretext tasks effectively. Nevertheless, evaluating representations derived from multiple pretext tasks without direct access to ground truth labels makes this problem challenging. To address this obstacle, we make use of a key principle of many real-world graphs, i.e., homophily, as the guidance to effectively search various self-supervised pretext tasks. We provide theoretical understanding and empirical evidence to justify the flexibility of homophily in this search task. Then we propose the AutoSSL framework which can automatically search over combinations of various self-supervised tasks. 
 
 ## Requirements
 See `requirements.txt`.
