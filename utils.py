@@ -13,48 +13,13 @@ from torch_geometric.utils import train_test_split_edges
 from torch_geometric.utils import add_remaining_self_loops, to_undirected
 
 
-def get_attacked_dataset_node_embed(name, normalize_features, transform=None):
-    data = Dataset(root='attacked_data', name=name, seed=15)
-    adj, features, labels = data.adj, data.features, data.labels
-    model = NodeEmbeddingAttack()
-    model.attack(adj, attack_type="add", n_candidates=10000, n_perturbations=2000, dim=128)
-    modified_adj = model.modified_adj
-    data.adj = modified_adj
-    if normalize_features:
-        data.features = utils.normalize_feature(features.todense())
-    return data
-
-def get_attacked_dataset(name, normalize_features):
-    name, atk_method = name.split('_')
-    print(f'loading {atk_method} attck for dataset {name}...')
-    if atk_method == 'embed':
-        return get_attacked_dataset_node_embed(name, normalize_features)
-
-    data = Dataset(root='attacked_data', name=name, seed=15)
-    adj, features, labels = data.adj, data.features, data.labels
-
-    if atk_method == 'gfa':
-        # data.features = features.todense()
-        data.features = utils.normalize_feature(features.todense())
-        return data
-
-    perturbed_data = PrePtbDataset(root='attacked_data/',
-                        name=name,
-                        attack_method=atk_method,
-                        ptb_rate=0.15)
-    data.adj = perturbed_data.adj
-    data.features = features.todense()
-    if normalize_features:
-        data.features = utils.normalize_feature(features.todense())
-    return data
-
 def get_dataset(name, normalize_features=False, transform=None, if_dpr=True):
     path = osp.join(osp.dirname(osp.realpath(__file__)), 'data', name)
     if name in ['cora', 'citeseer', 'pubmed']:
         dataset = Planetoid(path, name)
     elif name in ['corafull']:
         dataset = CoraFull(path)
-    elif name in ['arxiv', 'proteins']:
+    elif name in ['arxiv']:
         dataset = PygNodePropPredDataset(name='ogbn-'+name)
     elif name in ['cs', 'physics']:
         dataset = Coauthor(path, name)
@@ -63,14 +28,6 @@ def get_dataset(name, normalize_features=False, transform=None, if_dpr=True):
     elif name in ['wiki']:
         dataset = WikiCS(root='data/')
         dataset.name = 'wiki'
-    elif name in ['acm', 'blogcatalog', 'flickr', 'polblogs']:
-        # dataset = Dataset(root='data/', name=name, setting='gcn', seed=15)
-        dataset = Dataset(root='data/', name=name, setting='gcn')
-        if normalize_features:
-            dataset.features = utils.normalize_feature(dataset.features.todense())
-        else:
-            dataset.features = dataset.features.todense()
-        return dataset
     else:
         raise NotImplementedError
 
@@ -168,16 +125,6 @@ class Pyg2Dpr(Dataset):
         return splits
 
 
-    def enable_link_prediction(self, pyg_data):
-        # pyg_data = train_test_split_edges(pyg_data)
-        pyg_data = train_test_split_edges(pyg_data, val_ratio=0.1, test_ratio=0.4)
-        self.train_pos_edge_index = pyg_data.train_pos_edge_index
-        # self.train_neg_edge_index = pyg_data.train_neg_edge_index
-        self.val_pos_edge_index = pyg_data.val_pos_edge_index
-        self.val_neg_edge_index = pyg_data.val_neg_edge_index
-        self.test_pos_edge_index = pyg_data.test_pos_edge_index
-        self.test_neg_edge_index = pyg_data.test_neg_edge_index
-
 
 def mask_to_index(index, size):
     all_idx = np.arange(size)
@@ -187,37 +134,4 @@ def index_to_mask(index, size):
     mask = torch.zeros((size, ), dtype=torch.bool)
     mask[index] = 1
     return mask
-
-def get_perturbed_adjnorm(adj, perturbation):
-    adj = adj.tolil()
-    idx = eval(perturbation)
-    idx_T = (idx[1] , idx[0])
-    adj[idx] = 1 - adj[idx]
-    adj[idx_T] = 1 - adj[idx_T]
-    ptb_adj = utils.sparse_mx_to_torch_sparse_tensor(adj)
-    # ptb_adj_norm = utils.normalize_adj_tensor(ptb_adj, sparse=True)
-    ptb_adj_norm = utils.normalize_sparse_tensor(ptb_adj)
-    return ptb_adj_norm
-
-def get_tsne(x, data, args):
-    import matplotlib.pyplot as plt
-    from sklearn.manifold import TSNE
-    import pandas as pd
-    labels = data.labels[data.idx_test]
-    x = x.cpu().numpy()
-    model = TSNE(n_components=2, random_state=0)
-    res = model.fit_transform(x)
-    res = res[data.idx_test]
-
-    fig, ax = plt.subplots()
-    groups = pd.DataFrame(res, columns=['x', 'y']).assign(category=labels).groupby('category')
-    for name, points in groups:
-        ax.scatter(points.x, points.y, label=name, s=2)
-        # ax.legend()
-    plt.axis('off')
-    plt.tick_params(axis='both', left='off', top='off', right='off', bottom='off', labelleft='off', labeltop='off', labelright='off', labelbottom='off')
-    plt.savefig(f'may24logs_homo_meta/{args.dataset}_{args.ssl}.pdf', bbox_inches='tight')
-
-    # res = model.fit_transform(x)
-    # plt.scatter(res[50:,0] , res[50:,1])
 
