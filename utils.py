@@ -1,12 +1,10 @@
 import os.path as osp
-from torch_geometric.datasets import Planetoid, PPI, WikiCS, Coauthor, Amazon, CoraFull
+from torch_geometric.datasets import Planetoid, WikiCS, Coauthor, Amazon, CoraFull
 import torch_geometric.transforms as T
 from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
-from deeprobust.graph.data import Dataset, PrePtbDataset
 import scipy.sparse as sp
 import numpy as np
 from deeprobust.graph.data import Dataset
-from deeprobust.graph.global_attack import NodeEmbeddingAttack
 from deeprobust.graph import utils
 from deeprobust.graph.utils import get_train_val_test_gcn, get_train_val_test
 from torch_geometric.utils import train_test_split_edges
