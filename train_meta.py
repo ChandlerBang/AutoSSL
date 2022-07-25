@@ -40,10 +40,7 @@ data = get_dataset(args.dataset, args.normalize_features)
 nfeat = data.features.shape[1]
 args.nclass = max(data.labels) + 1
 
-if args.dataset == 'arxiv':
-    set_of_ssl = ['Par', 'Clu', 'DGI', 'PairwiseDistance', 'PairwiseAttrSim']
-else:
-    set_of_ssl = ['Par', 'Clu', 'DGI', 'PairwiseDistance', 'PairwiseAttrSim']
+set_of_ssl = ['Par', 'Clu', 'DGI', 'PairwiseDistance', 'PairwiseAttrSim']
 
 if data.adj.shape[0] > 5000:
     set_of_ssl = [ssl if ssl != 'DGI' else 'DGISample' for ssl in set_of_ssl]

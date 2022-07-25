@@ -5,7 +5,6 @@ python -W ignore train_meta.py --gpu_id=$2 --dataset $dataset --lr $lr --seed $s
 dataset=citeseer; lr=5e-4; lr_lambda=0.05
 python -W ignore train_meta.py --gpu_id=$2 --dataset $dataset --lr $lr --seed $seed --lr_lambda ${lr_lambda} >> res/${dataset}.out
 
-
 dataset=wiki; lr=1e-3; lr_lambda=0.05
 python -W ignore train_meta.py --gpu_id=$2 --dataset $dataset --lr $lr --seed $seed --lr_lambda ${lr_lambda} >> res/${dataset}.out
 
